@@ -28,7 +28,7 @@ public class LinkedList {
         }
         Node current = first;
         for (int i = 0; i < index; i++) {
-            current = current.getNext();
+            current = current.next; // Access the `next` field directly
         }
         return current;
     }
@@ -39,18 +39,18 @@ public class LinkedList {
         }
         Node newNode = new Node(block);
         if (index == 0) {
-            newNode.setNext(first);
+            newNode.next = first; // Set the `next` field directly
             first = newNode;
             if (size == 0) {
                 last = newNode;
             }
         } else if (index == size) {
-            last.setNext(newNode);
+            last.next = newNode; // Set the `next` field directly
             last = newNode;
         } else {
             Node previous = getNode(index - 1);
-            newNode.setNext(previous.getNext());
-            previous.setNext(newNode);
+            newNode.next = previous.next; // Set the `next` field directly
+            previous.next = newNode;
         }
         size++;
     }
@@ -64,16 +64,16 @@ public class LinkedList {
     }
 
     public MemoryBlock getBlock(int index) {
-        return getNode(index).getBlock();
+        return getNode(index).block; // Access the `block` field directly
     }
 
     public int indexOf(MemoryBlock block) {
         Node current = first;
         for (int i = 0; i < size; i++) {
-            if (current.getBlock().equals(block)) {
+            if (current.block.equals(block)) { // Access the `block` field directly
                 return i;
             }
-            current = current.getNext();
+            current = current.next; // Access the `next` field directly
         }
         return -1;
     }
@@ -83,17 +83,17 @@ public class LinkedList {
             return;
         }
         if (node == first) {
-            first = first.getNext();
+            first = first.next; // Access the `next` field directly
             if (first == null) {
                 last = null;
             }
         } else {
             Node previous = first;
-            while (previous != null && previous.getNext() != node) {
-                previous = previous.getNext();
+            while (previous != null && previous.next != node) {
+                previous = previous.next; // Access the `next` field directly
             }
             if (previous != null) {
-                previous.setNext(node.getNext());
+                previous.next = node.next; // Access the `next` field directly
                 if (node == last) {
                     last = previous;
                 }
@@ -113,11 +113,11 @@ public class LinkedList {
     public void remove(MemoryBlock block) {
         Node current = first;
         while (current != null) {
-            if (current.getBlock().equals(block)) {
+            if (current.block.equals(block)) { // Access the `block` field directly
                 remove(current);
                 return;
             }
-            current = current.getNext();
+            current = current.next; // Access the `next` field directly
         }
         throw new IllegalArgumentException("MemoryBlock not found in the list");
     }
@@ -130,8 +130,8 @@ public class LinkedList {
         StringBuilder sb = new StringBuilder();
         Node current = first;
         while (current != null) {
-            sb.append(current.getBlock().toString()).append(" -> ");
-            current = current.getNext();
+            sb.append(current.block.toString()).append(" -> "); // Access the `block` field directly
+            current = current.next; // Access the `next` field directly
         }
         sb.append("null");
         return sb.toString();

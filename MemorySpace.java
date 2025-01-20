@@ -1,91 +1,75 @@
 public class MemorySpace {
 
-    // A list of the memory blocks that are presently allocated
     private LinkedList allocatedList;
-
-    // A list of memory blocks that are presently free
     private LinkedList freeList;
 
     public MemorySpace(int maxSize) {
-        // Initializes an empty list of allocated blocks.
         allocatedList = new LinkedList();
-        // Initializes a free list containing a single block which represents
-        // the entire memory. The base address of this single initial block is
-        // zero, and its length is the given memory size.
         freeList = new LinkedList();
+        // Initialize freeList with a single memory block spanning the whole memory space
         freeList.addLast(new MemoryBlock(0, maxSize));
     }
 
     public int malloc(int length) {
-        ListIterator iterator = freeList.iterator();
-        while (iterator.hasNext()) {
-            Node currentNode = iterator.next();
-            MemoryBlock freeBlock = currentNode.getBlock();
-            if (freeBlock.getLength() >= length) {
-                int baseAddress = freeBlock.getBaseAddress();
+        Node current = freeList.getFirst();
+        while (current != null) {
+            MemoryBlock freeBlock = current.block; // Directly access the `block` field
+            if (freeBlock.length >= length) {     // Directly access the `length` field
+                int baseAddress = freeBlock.baseAddress; // Directly access the `baseAddress` field
                 MemoryBlock allocatedBlock = new MemoryBlock(baseAddress, length);
                 allocatedList.addLast(allocatedBlock);
 
-                if (freeBlock.getLength() == length) {
-                    freeList.remove(currentNode);
+                if (freeBlock.length == length) {
+                    // Exact fit: Remove the free block
+                    freeList.remove(current);
                 } else {
-                    freeBlock.setBaseAddress(baseAddress + length);
-                    freeBlock.setLength(freeBlock.getLength() - length);
+                    // Update the free block
+                    freeBlock.baseAddress += length;
+                    freeBlock.length -= length;
                 }
                 return baseAddress;
             }
+            current = current.next; // Access the `next` field directly
         }
         return -1; // No suitable block found
     }
 
     public void free(int address) {
-        ListIterator iterator = allocatedList.iterator();
-        while (iterator.hasNext()) {
-            Node currentNode = iterator.next();
-            MemoryBlock allocatedBlock = currentNode.getBlock();
-            if (allocatedBlock.getBaseAddress() == address) {
-                allocatedList.remove(currentNode);
+        Node current = allocatedList.getFirst();
+        while (current != null) {
+            MemoryBlock allocatedBlock = current.block; // Directly access the `block` field
+            if (allocatedBlock.baseAddress == address) { // Directly access the `baseAddress` field
+                allocatedList.remove(current);
                 freeList.addLast(allocatedBlock);
                 return;
             }
+            current = current.next; // Access the `next` field directly
         }
         throw new IllegalArgumentException("Memory block with the given address not found in allocated list");
     }
 
-    public String toString() {
-        return "Free List:\n" + freeList.toString() + "\nAllocated List:\n" + allocatedList.toString();
-    }
-
     public void defrag() {
-        freeList = mergeAdjacentBlocks(freeList);
-    }
-
-    private LinkedList mergeAdjacentBlocks(LinkedList list) {
-        if (list.getSize() <= 1) {
-            return list;
+        if (freeList.getSize() <= 1) {
+            return; // Nothing to defragment
         }
 
-        LinkedList mergedList = new LinkedList();
-        ListIterator iterator = list.iterator();
+        Node current = freeList.getFirst();
+        while (current != null && current.next != null) {
+            MemoryBlock currentBlock = current.block;
+            MemoryBlock nextBlock = current.next.block;
 
-        Node currentNode = iterator.next();
-        MemoryBlock currentBlock = currentNode.getBlock();
-
-        while (iterator.hasNext()) {
-            Node nextNode = iterator.next();
-            MemoryBlock nextBlock = nextNode.getBlock();
-
-            if (currentBlock.getBaseAddress() + currentBlock.getLength() == nextBlock.getBaseAddress()) {
-                // Merge adjacent blocks
-                currentBlock.setLength(currentBlock.getLength() + nextBlock.getLength());
+            // Check if current block and next block are adjacent
+            if (currentBlock.baseAddress + currentBlock.length == nextBlock.baseAddress) {
+                // Merge the blocks
+                currentBlock.length += nextBlock.length;
+                freeList.remove(current.next);
             } else {
-                mergedList.addLast(new MemoryBlock(currentBlock.getBaseAddress(), currentBlock.getLength()));
-                currentBlock = nextBlock;
+                current = current.next;
             }
         }
-        // Add the last block
-        mergedList.addLast(new MemoryBlock(currentBlock.getBaseAddress(), currentBlock.getLength()));
+    }
 
-        return mergedList;
+    public String toString() {
+        return "Free List:\n" + freeList + "\nAllocated List:\n" + allocatedList;
     }
 }
