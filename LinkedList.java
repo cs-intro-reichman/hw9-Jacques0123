@@ -119,7 +119,7 @@ public class LinkedList {
             }
             current = current.next; // Access the `next` field directly
         }
-        throw new IllegalArgumentException("MemoryBlock not found in the list");
+        throw new IllegalArgumentException("index must be between 0 and sizet");
     }
 
     public ListIterator iterator() {
