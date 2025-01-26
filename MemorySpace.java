@@ -45,7 +45,7 @@ public class MemorySpace {
             }
             current = current.next; // Access the `next` field directly
         }
-        throw new IllegalArgumentException("index must be between 0 and size");
+        throw new IllegalArgumentException("Memory block with the given address not found in allocated list");
     }
 
     public void defrag() {
