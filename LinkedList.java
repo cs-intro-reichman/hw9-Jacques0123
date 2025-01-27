@@ -1,3 +1,4 @@
+
 /**
  * Represents a list of Nodes. 
  */
@@ -55,7 +56,7 @@ public class LinkedList {
 					"index must be between 0 and size");
 		}
 		Node curr = first;
-		for (int i = 0; i < index; i++) {
+		for ( int i= 0; i<index; i++) {
 			curr = curr.next;
 		}
 		return curr;
@@ -81,29 +82,26 @@ public class LinkedList {
 	 *         if index is negative or greater than the list's size
 	 */
 	public void add(int index, MemoryBlock block) {
+		Node newNode = new Node(block);
 		if (index < 0 || index > size) {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
+		} else if (size == 0) {
+			first = newNode;
+			last = newNode;
+		}else if( index == 0) {
+			newNode.next = first;
+			first = newNode;
+ 		} else if (index == size) {
+			// last.next equals null, now equals the LAST NODE!	
+			last.next = newNode;
+			last = newNode;
+		} else {
+			Node temp = getNode(index-1);
+			newNode.next = temp.next;
+			temp.next = newNode;
 		}
-		Node n = new Node(block);
-		if (size == 0) {
-			first = n;
-			last = n;
-		}
-		else if (index == 0) {
-			n.next = first;
-			first = n;
-		}
-		else if (index == size) {
-			last.next = n;
-			last = n;			
-		}
-		else {
-			Node before = getNode(index-1);
-			n.next = before.next;
-			before.next = n;
-		}
-		size++;
+		size ++; 
 	}
 
 	/**
@@ -114,7 +112,8 @@ public class LinkedList {
 	 *        the given memory block
 	 */
 	public void addLast(MemoryBlock block) {
-		add(size , block);
+		// dont need exeptions/ error handling bcs we have it in add func.
+		add(size, block);
 	}
 	
 	/**
@@ -138,10 +137,11 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public MemoryBlock getBlock(int index) {
-		if (index < 0 || index > size || size == 0) {
+		if (index < 0 || index >= size) {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
 		}
+		// in class Node: defined field block therefore if we want to call it outside the Node class, then say Node.block (not private)
 		return getNode(index).block;
 	}	
 
@@ -153,11 +153,9 @@ public class LinkedList {
 	 * @return the index of the block, or -1 if the block is not in this list
 	 */
 	public int indexOf(MemoryBlock block) {
-		
 		Node curr = first;
-
-		for (int i = 0; i < size; i++) {
-			if (block.equals(curr.block)) {
+		for ( int i = 0; i < size; i++) {
+			if (curr.block.equals(block)) {
 				return i;
 			}
 			curr = curr.next;
@@ -172,24 +170,21 @@ public class LinkedList {
 	 *        the node that will be removed from this list
 	 */
 	public void remove(Node node) {
-		int index = indexOf(node.block);
-		if (index == -1) {
-			return;
-		}
-		else if (index == 0) {
-			first = (size == 1) ? null : first.next;
-			last = (size == 1) ? first : last;
-		}
-		else if (index == size-1) {
-			last = getNode(index-1);
+		//come back incase need to put the removed node in free function!
+		int indexNode = indexOf(node.block);
+		if (indexNode < 0 || indexNode >= size) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		} else if (indexNode == 0) {
+			first = first.next;
+			last = (size == 1)? first : last;
+		}else if (indexNode == size -1 ) {
+			last = getNode(indexNode - 1);
 			last.next = null;
-			
+		}else {
+			getNode(indexNode - 1).next = node.next;
 		}
-		else {
-			getNode(index-1).next = node.next;
-		}
-		
-		size--;
+		size --;
 	}
 
 	/**
@@ -225,13 +220,12 @@ public class LinkedList {
 	 * A textual representation of this list, for debugging.
 	 */
 	public String toString() {
-		Node curr = first;
-		String output = "";
+		String res = "";//"[";
+		
 		for (int i = 0; i < size; i++) {
-			output += curr.toString() + " ";
-			curr = curr.next;
-			
+			res +=  getBlock(i) + " ";
 		}
-		return output;
+		//res += "]";
+		return res;
 	}
 }

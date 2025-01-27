@@ -59,19 +59,20 @@ public class MemorySpace {
 	 */
 	public int malloc(int length) {		
 		ListIterator iter = freeList.iterator();
-		while (iter.hasNext()) {
+		while(iter.hasNext()) {
 			if (iter.current.block.length == length) {
 				MemoryBlock block = new MemoryBlock(iter.current.block.baseAddress, length);
 				freeList.remove(block);
 				allocatedList.addLast(block);
 				return block.baseAddress;
-			}
-			else if (iter.current.block.length > length) {
-				MemoryBlock newBlock = new MemoryBlock(iter.current.block.baseAddress, length);
-				allocatedList.addLast(newBlock);
-				iter.current.block.baseAddress = iter.current.block.baseAddress + length;
+			} else if ( iter.current.block.length > length) {
+				// node add to allocated list 
+				MemoryBlock block = new MemoryBlock(iter.current.block.baseAddress, length);
+				allocatedList.addLast(block);
 				iter.current.block.length = iter.current.block.length - length;
-				return newBlock.baseAddress;
+				iter.current.block.baseAddress = iter.current.block.baseAddress + length;
+				
+				return block.baseAddress;
 			}
 			iter.next();
 		}
@@ -89,13 +90,14 @@ public class MemorySpace {
 	public void free(int address) {
 		ListIterator iter = allocatedList.iterator();
 		if (allocatedList.getSize() == 0) {
-			throw new IllegalArgumentException(
-					"index must be between 0 and size");
+			throw new IllegalArgumentException (
+				"index must be between 0 and size"
+			);
 		}
-		while (iter.hasNext()) {
-			if (iter.current.block.baseAddress == address) {
-				freeList.addLast(iter.current.block);
+		while(iter.hasNext()) {
+			if ( iter.current.block.baseAddress == address) {
 				allocatedList.remove(iter.current);
+				freeList.addLast(iter.current.block);
 				return;
 			}
 			iter.next();
@@ -116,23 +118,23 @@ public class MemorySpace {
 	 * In this implementation Malloc does not call defrag.
 	 */
 	public void defrag() {
-		Node curr = freeList.getFirst();
-		Node right = curr;
-		int c = 1;
-		int tmpaddress, tmplength;
-		while (curr != null && curr.next != null) {
-			if (curr.block.baseAddress + curr.block.length == right.block.baseAddress) {
-				tmpaddress = right.block.baseAddress;
-				tmplength = right.block.length;
-				freeList.remove(right);
-				curr.block.length += tmplength;
-				c++;
-				right = curr;
+		ListIterator iter = freeList.iterator();
+		Node temp = iter.current;
+		
+		while (iter.current != null && iter.current.next != null) {
+			if ( iter.current.block.baseAddress + iter.current.block.length == temp.block.baseAddress) {
+				//System.out.println("shaping:" + toString());
+				iter.current.block.length += temp.block.length;
+				freeList.remove(temp);
+				//System.out.println("shaped:" + toString());
+				temp = iter.current;
 			}
-			right = right.next;
-			if (right == null) {
-				curr = curr.next;
+			temp = temp.next;
+			if (temp == null) {
+				iter.next();
+				temp = freeList.getFirst();
 			}
+
 		}
 	}
 }
