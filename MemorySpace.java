@@ -29,7 +29,7 @@ public class MemorySpace {
             }
             current = current.next;
         }
-        return -1; // No suitable block found
+        throw new IllegalStateException("Failed to allocate memory: No suitable block found");
     }
 
     public void free(int address) {
