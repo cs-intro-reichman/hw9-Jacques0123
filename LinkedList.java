@@ -1,3 +1,4 @@
+
 public class LinkedList {
 
     private Node first; // pointer to the first element of this list
@@ -127,13 +128,16 @@ public class LinkedList {
     }
 
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        String s = "";
         Node current = first;
         while (current != null) {
-            sb.append(current.block.toString()).append(" -> "); // Access the `block` field directly
-            current = current.next; // Access the `next` field directly
+            s = s + current.block + " ";
+            current = current.next;
+
         }
-        sb.append("null");
-        return sb.toString();
+
+        return s;
+
     }
 }
+
